@@ -1,7 +1,6 @@
 package ru.practicum.main.service.event.util;
 
 import client.StatParam;
-import client.StatsClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,6 +9,7 @@ import ru.practicum.main.service.event.dto.EventFullDto;
 import ru.practicum.main.service.event.dto.EventShortDto;
 import ru.practicum.main.service.event.dto.ResponseEvent;
 import ru.practicum.main.service.event.model.Event;
+import ru.practicum.main.service.feign.StatsFeign;
 import ru.practicum.main.service.request.RequestRepository;
 import ru.practicum.main.service.request.enums.RequestStatus;
 import ru.practicum.main.service.request.model.ConfirmedRequests;
@@ -30,7 +30,7 @@ import static ru.practicum.main.service.Constants.MIN_START_DATE;
 public class ResponseEventBuilder {
     private final MapperEvent eventMapper;
     private final RequestRepository requestRepository;
-    private final StatsClient statsClient;
+    private final StatsFeign statsFeign;
 
     public <T extends ResponseEvent> T buildOneEventResponseDto(Event event, Class<T> type) {
         T dto;
@@ -88,7 +88,7 @@ public class ResponseEventBuilder {
                 .uris(List.of("/events/" + eventId))
                 .build();
 
-        List<ViewStatsDto> viewStats = statsClient.getStat(statParam);
+        List<ViewStatsDto> viewStats = statsFeign.getStats(statParam.getStart(), statParam.getEnd(), statParam.getUris(), statParam.getUnique()).getBody();
         log.debug("Статистика пустая = {} . Одиночный от статистики по запросу uris = {}, start = {}, end = {}",
                 viewStats.isEmpty(),
                 statParam.getUris(),
@@ -113,7 +113,7 @@ public class ResponseEventBuilder {
                 .uris(uris)
                 .build();
 
-        List<ViewStatsDto> viewStats = statsClient.getStat(statParam);
+        List<ViewStatsDto> viewStats = statsFeign.getStats(statParam.getStart(), statParam.getEnd(), statParam.getUris(), statParam.getUnique()).getBody();
         log.debug("Получен ответ size = {}, массовый от статистики по запросу uris = {}, start = {}, end = {}",
                 viewStats.size(),
                 statParam.getUris(),

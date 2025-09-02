@@ -12,3 +12,35 @@ spring:
           uri: lb://main-service
           predicates:
             - Path=/admin/users**
+        - id: main-service_requests_route
+          uri: lb://main-service
+          predicates:
+            - Path=/users/{userId}/requests/**
+        - id: main-service_admin_event_route
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/events/**
+        - id: main-service_private_event_route
+          uri: lb://main-service
+          predicates:
+            - Path=/users/{userId}/events/**
+        - id: main-service_public_event_route
+          uri: lb://main-service
+          predicates:
+            - Path=/events/**
+        - id: main-service_admin_compilation_route
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/compilations/**
+        - id: main-service_public_compilation_route
+          uri: lb://main-service
+          predicates:
+            - Path=/compilations/**
+        - id: main-service_admin_category_route
+          uri: lb://main-service
+          predicates:
+            - Path=admin/categories/**
+        - id: main-service_public_category_route
+          uri: lb://main-service
+          predicates:
+            - Path=categories/**
