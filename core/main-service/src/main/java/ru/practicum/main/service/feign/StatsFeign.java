@@ -15,7 +15,7 @@ import ru.practicum.stats.dto.ViewStatsDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@FeignClient(name = "stats-server-feign")
+@FeignClient(name = "stats-server")
 @Validated
 public interface StatsFeign {
 

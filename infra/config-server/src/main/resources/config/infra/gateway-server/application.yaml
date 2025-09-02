@@ -11,7 +11,7 @@ spring:
         - id: main_service_users_admin_route
           uri: lb://main-service
           predicates:
-            - Path=/admin/users**
+            - Path=/admin/users/**
         - id: main-service_requests_route
           uri: lb://main-service
           predicates:
@@ -39,8 +39,8 @@ spring:
         - id: main-service_admin_category_route
           uri: lb://main-service
           predicates:
-            - Path=admin/categories/**
+            - Path=/admin/categories/**
         - id: main-service_public_category_route
           uri: lb://main-service
           predicates:
-            - Path=categories/**
+            - Path=/categories/**
