@@ -9,38 +9,42 @@ spring:
           enabled: true
       routes:
         - id: main_service_users_admin_route
-          uri: lb://main-service
+          uri: lb://user
           predicates:
             - Path=/admin/users/**
-        - id: main-service_requests_route
-          uri: lb://main-service
+        - id: private_requests_route
+          uri: lb://request
           predicates:
             - Path=/users/{userId}/requests/**
-        - id: main-service_admin_event_route
-          uri: lb://main-service
+        - id: public_requests_route
+          uri: lb://request
+          predicates:
+            - Path=/requests/**
+        - id: admin_event_route
+          uri: lb://event
           predicates:
             - Path=/admin/events/**
-        - id: main-service_private_event_route
-          uri: lb://main-service
+        - id: private_event_route
+          uri: lb://event
           predicates:
             - Path=/users/{userId}/events/**
-        - id: main-service_public_event_route
-          uri: lb://main-service
+        - id: public_event_route
+          uri: lb://event
           predicates:
             - Path=/events/**
-        - id: main-service_admin_compilation_route
-          uri: lb://main-service
-          predicates:
-            - Path=/admin/compilations/**
-        - id: main-service_public_compilation_route
-          uri: lb://main-service
-          predicates:
-            - Path=/compilations/**
-        - id: main-service_admin_category_route
-          uri: lb://main-service
+        - id: admin_category_route
+          uri: lb://event
           predicates:
             - Path=/admin/categories/**
-        - id: main-service_public_category_route
-          uri: lb://main-service
+        - id: public_category_route
+          uri: lb://event
           predicates:
             - Path=/categories/**
+        - id: public_compilation_route
+          uri: lb://compilation
+          predicates:
+            - Path=/compilations/**
+        - id: admin_compilation_route
+          uri: lb://compilation
+          predicates:
+            - Path=/admin/compilations/**

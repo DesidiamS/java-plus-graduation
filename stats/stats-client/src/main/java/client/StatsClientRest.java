@@ -13,8 +13,9 @@ import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import ru.practicum.stats.dto.EndpointHitDto;
-import ru.practicum.stats.dto.ViewStatsDto;
+import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.dto.StatParam;
+import ru.practicum.dto.ViewStatsDto;
 
 import java.io.IOException;
 import java.io.InputStream;
