@@ -123,6 +123,7 @@
                 </dependencies>
             </plugin>
         </plugins>
+        <finalName>event-service-0.0.1-SNAPSHOT</finalName>
     </build>
 
 </project>
