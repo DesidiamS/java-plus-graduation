@@ -9,42 +9,42 @@ spring:
           enabled: true
       routes:
         - id: main_service_users_admin_route
-          uri: lb://user
+          uri: lb://user-service
           predicates:
             - Path=/admin/users/**
         - id: private_requests_route
-          uri: lb://request
+          uri: lb://request-service
           predicates:
             - Path=/users/{userId}/requests/**
         - id: public_requests_route
-          uri: lb://request
+          uri: lb://request-service
           predicates:
             - Path=/requests/**
         - id: admin_event_route
-          uri: lb://event
+          uri: lb://event-service
           predicates:
             - Path=/admin/events/**
         - id: private_event_route
-          uri: lb://event
+          uri: lb://event-service
           predicates:
             - Path=/users/{userId}/events/**
         - id: public_event_route
-          uri: lb://event
+          uri: lb://event-service
           predicates:
             - Path=/events/**
         - id: admin_category_route
-          uri: lb://event
+          uri: lb://event-service
           predicates:
             - Path=/admin/categories/**
         - id: public_category_route
-          uri: lb://event
+          uri: lb://event-service
           predicates:
             - Path=/categories/**
         - id: public_compilation_route
-          uri: lb://compilation
+          uri: lb://compilation-service
           predicates:
             - Path=/compilations/**
         - id: admin_compilation_route
-          uri: lb://compilation
+          uri: lb://compilation-service
           predicates:
             - Path=/admin/compilations/**
