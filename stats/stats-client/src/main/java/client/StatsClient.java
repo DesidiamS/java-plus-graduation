@@ -2,8 +2,9 @@ package client;
 
 import exception.NullBodyException;
 import exception.RequestException;
-import ru.practicum.stats.dto.EndpointHitDto;
-import ru.practicum.stats.dto.ViewStatsDto;
+import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.dto.StatParam;
+import ru.practicum.dto.ViewStatsDto;
 
 import java.util.List;
 

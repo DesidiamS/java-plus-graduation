@@ -10,7 +10,11 @@
     </parent>
 
     <modules>
-        <module>main-service</module>
+        <module>event</module>
+        <module>interaction-api</module>
+        <module>user</module>
+        <module>request</module>
+        <module>compilation</module>
     </modules>
 
     <artifactId>core</artifactId>
