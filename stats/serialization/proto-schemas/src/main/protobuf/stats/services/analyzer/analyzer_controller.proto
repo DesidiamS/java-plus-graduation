@@ -5,12 +5,12 @@ option java_package = "ru.practicum.grpc.stats.analyzer.recommendations";
 package stats.service.dashboard;
 
 service RecommendationsController {
-  rpc GetRecommendationsForUser(stats.message.dashboard.UserPredictionsRequestProto)
-      returns (stream stats.message.dashboard.RecommendedEventProto);
+  rpc GetRecommendationsForUser(stats.message.UserPredictionsRequestProto)
+      returns (stream stats.message.RecommendedEventProto);
 
-  rpc GetSimilarEvents(stats.message.dashboard.SimilarEventsRequestProto)
-      returns (stream stats.message.dashboard.RecommendedEventProto);
+  rpc GetSimilarEvents(stats.message.SimilarEventsRequestProto)
+      returns (stream stats.message.RecommendedEventProto);
 
-  rpc GetInteractionsCount(stats.message.dashboard.InteractionsCountRequestProto)
-      returns (stream stats.message.dashboard.RecommendedEventProto);
+  rpc GetInteractionsCount(stats.message.InteractionsCountRequestProto)
+      returns (stream stats.message.RecommendedEventProto);
 }

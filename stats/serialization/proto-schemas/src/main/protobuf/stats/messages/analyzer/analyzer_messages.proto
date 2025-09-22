@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "ru.practicum.grpc.stats.recommendations";
-package stats.message.dashboard;
+package stats.message;
 
 message UserPredictionsRequestProto {
   int32 user_id = 1;
