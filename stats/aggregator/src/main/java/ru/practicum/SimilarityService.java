@@ -56,57 +56,6 @@ public class SimilarityService {
         return sMin / (Math.sqrt(s1) * Math.sqrt(s2));
     }
 
-    /*private List<EventSimilarityAvro> onUserAction(UserActionAvro userActionAvro) {
-        List<EventSimilarityAvro> updates = new ArrayList<>();
-
-        long eventId = userActionAvro.getEventId();
-        long userId = userActionAvro.getUserId();
-        double weight = getWeight(userActionAvro.getActionType());
-
-        Map<Long, Double> userWeights =
-                eventUserWeights.computeIfAbsent(eventId, k -> new ConcurrentHashMap<>());
-
-        double oldWeight = userWeights.getOrDefault(userId, 0.0);
-        double newWeight = Math.max(oldWeight, weight);
-
-        if (newWeight == oldWeight) {
-            return updates;
-        }
-
-        userWeights.put(userId, newWeight);
-        double deltaEvent = newWeight - oldWeight;
-        eventSums.merge(eventId, deltaEvent, Double::sum);
-
-        for (Map.Entry<Long, Map<Long, Double>> entry : eventUserWeights.entrySet()) {
-            Long otherEventId = entry.getKey();
-            if (otherEventId.equals(eventId)) continue;
-
-            Map<Long, Double> otherUsers = entry.getValue();
-            double wOther = otherUsers.getOrDefault(userId, 0.0);
-
-            double oldMin = Math.min(oldWeight, wOther);
-            double newMin = Math.min(newWeight, wOther);
-            double deltaMin = newMin - oldMin;
-
-            if (deltaMin != 0.0) {
-                add(eventId, otherEventId, deltaMin);
-
-                double score = computeSimilarity(eventId, otherEventId);
-                long first = Math.min(eventId, otherEventId);
-                long second = Math.max(eventId, otherEventId);
-
-                updates.add(EventSimilarityAvro.newBuilder()
-                        .setEventA((int) first)
-                        .setEventB((int) second)
-                        .setScore(score)
-                        .setTimestamp(userActionAvro.getTimestamp())
-                        .build());
-            }
-        }
-
-        return updates;
-    }*/
-
     private List<EventSimilarityAvro> onUserAction(UserActionAvro userActionAvro) {
         List<EventSimilarityAvro> updates = new ArrayList<>();
 
@@ -155,9 +104,6 @@ public class SimilarityService {
                         .build());
             }
         }
-
-        log.debug("onUserAction for event {} user {}: oldWeight={}, newWeight={}, deltaEvent={}, updates={}",
-                eventId, userId, oldWeight, newWeight, deltaEvent, updates.size());
 
         return updates;
     }
