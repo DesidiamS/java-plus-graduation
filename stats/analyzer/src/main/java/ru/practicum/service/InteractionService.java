@@ -1,6 +1,7 @@
 package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.domain.Interaction;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InteractionService {
 
     private static final Map<ActionTypeAvro, Double> ACTION_WEIGHTS = Map.of(
@@ -22,6 +24,7 @@ public class InteractionService {
     private final InteractionRepository interactionRepository;
 
     public void saveInteraction(UserActionAvro userActionAvro) {
+        log.info("Saving interaction {}", userActionAvro);
         Interaction interaction = Interaction.builder()
                 .eventId((long) userActionAvro.getEventId())
                 .userId((long) userActionAvro.getUserId())

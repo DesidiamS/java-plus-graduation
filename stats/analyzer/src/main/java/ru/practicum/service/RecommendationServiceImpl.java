@@ -33,6 +33,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public Iterator<RecommendedEventProto> getRecommendedEvents(SimilarEventsRequestProto request) {
+        log.info("Getting recommendation events for user {}", request.getUserId());
         log.info("getRecommendedEvents request: {}", request);
         List<Similarity> similarities = similarityRepository.getRecommendations(
                 (long) request.getUserId(), (long) request.getEventId(), request.getMaxResults());
@@ -51,6 +52,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public Iterator<RecommendedEventProto> getRecommendationsForUser(UserPredictionsRequestProto request) {
+        log.info("Getting recommendation for user {}", request.getUserId());
         List<Interaction> recentInteractions = interactionRepository
                 .findTopNByUserIdOrderByTsDesc((long) request.getUserId());
 
@@ -128,6 +130,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public Iterator<RecommendedEventProto> getInteractionsCount(InteractionsCountRequestProto request) {
+        log.info("Getting interactions count {}", request.getEventId());
         Map<Long, Integer> maxWeights = interactionRepository.findMaxWeightsByEventId((long) request.getEventId());
 
         List<RecommendedEventProto> recommendedList = maxWeights.entrySet().stream()
