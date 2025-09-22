@@ -25,7 +25,7 @@ public class EventSimilarityProcessor implements Runnable {
 
     @Override
     public void run() {
-        try (KafkaConsumer<String, EventSimilarityAvro> consumer = new KafkaConsumer<>(config.getUserConsumerProperties())) {
+        try (KafkaConsumer<String, EventSimilarityAvro> consumer = new KafkaConsumer<>(config.getEventConsumerProperties())) {
             consumer.subscribe(Collections.singleton(topic));
 
             Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
