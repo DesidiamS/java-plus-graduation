@@ -1,39 +1,35 @@
 package ru.practicum.event.util;
 
+import client.AnalyzerClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.dto.ConfirmedRequests;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
+import ru.practicum.dto.RecommendationDto;
 import ru.practicum.dto.ResponseEvent;
-import ru.practicum.dto.StatParam;
 import ru.practicum.dto.UserShortDto;
-import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.enums.RequestStatus;
 import ru.practicum.event.mapper.MapperEvent;
 import ru.practicum.event.model.Event;
 import ru.practicum.feign.RequestFeign;
-import ru.practicum.feign.StatsFeign;
 import ru.practicum.feign.UserFeign;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.practicum.Constants.MIN_START_DATE;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class ResponseEventBuilder {
     private final MapperEvent eventMapper;
-    private final StatsFeign statsFeign;
     private final RequestFeign requestFeign;
     private final UserFeign userFeign;
+    private final AnalyzerClient analyzerClient;
 
     public <T extends ResponseEvent> T buildOneEventResponseDto(Event event, Class<T> type) {
         T dto;
@@ -51,10 +47,15 @@ public class ResponseEventBuilder {
         }
 
         long eventId = event.getId();
-        LocalDateTime created = event.getCreatedOn();
+        //LocalDateTime created = event.getCreatedOn();
 
         dto.setConfirmedRequests(getOneEventConfirmedRequests(eventId));
-        dto.setViews(getOneEventViews(created, eventId));
+
+        double rating = analyzerClient.getInteractionsCount(event.getId())
+                .stream().map(RecommendationDto::getScore)
+                .reduce(0.0, Double::sum);
+        dto.setRating(rating);
+
         return dto;
     }
 
@@ -78,12 +79,6 @@ public class ResponseEventBuilder {
         getManyEventsConfirmedRequests(dtoById.keySet()).forEach(req ->
                 dtoById.get(req.eventId()).setConfirmedRequests(req.countRequests()));
 
-
-        getManyEventsViews(dtoById.keySet()).forEach(stats -> {
-            Long id = Long.parseLong(stats.getUri().replace("/events/", ""));
-            dtoById.get(id).setViews(stats.getHits());
-        });
-
         return new ArrayList<>(dtoById.values());
     }
 
@@ -93,7 +88,7 @@ public class ResponseEventBuilder {
                 .count());
     }
 
-    private long getOneEventViews(LocalDateTime created, long eventId) {
+    /*private long getOneEventViews(LocalDateTime created, long eventId) {
         StatParam statParam = StatParam.builder()
                 .start(created.minusMinutes(1))
                 .end(LocalDateTime.now().plusMinutes(1))
@@ -101,7 +96,6 @@ public class ResponseEventBuilder {
                 .uris(List.of("/events/" + eventId))
                 .build();
 
-        List<ViewStatsDto> viewStats = statsFeign.getStats(statParam.getStart(), statParam.getEnd(), statParam.getUris(), statParam.getUnique()).getBody();
 
         if (viewStats == null) {
             viewStats = new ArrayList<>();
@@ -113,13 +107,13 @@ public class ResponseEventBuilder {
                 statParam.getStart(),
                 statParam.getEnd());
         return viewStats.isEmpty() ? 0 : viewStats.getFirst().getHits();
-    }
+    }*/
 
     private List<ConfirmedRequests> getManyEventsConfirmedRequests(Collection<Long> eventIds) {
         return requestFeign.getRequestsByEvents(eventIds.stream().toList());
     }
 
-    private List<ViewStatsDto> getManyEventsViews(Collection<Long> eventIds) {
+    /*private List<ViewStatsDto> getManyEventsViews(Collection<Long> eventIds) {
         List<String> uris = eventIds.stream()
                 .map(id -> "/events/" + id)
                 .toList();
@@ -144,5 +138,5 @@ public class ResponseEventBuilder {
                 statParam.getStart(),
                 statParam.getEnd());
         return viewStats;
-    }
+    }*/
 }

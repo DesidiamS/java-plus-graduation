@@ -1,0 +1,8 @@
+grpc:
+  server:
+    port: 0
+
+kafka:
+  local:
+    config: localhost:9092
+  topic: stats.user-actions.v1

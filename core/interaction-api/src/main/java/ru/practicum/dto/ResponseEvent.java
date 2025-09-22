@@ -5,7 +5,7 @@ public interface ResponseEvent {
 
     int getConfirmedRequests();
 
-    void setViews(long views);
+    void setRating(double rating);
 
-    long getViews();
+    double getRating();
 }

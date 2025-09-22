@@ -62,5 +62,5 @@ public class EventFullDto implements ResponseEvent {
 
     EventState state;
 
-    long views;
+    double rating;
 }

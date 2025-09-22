@@ -38,7 +38,7 @@ public class EventShortDto implements ResponseEvent {
     @NotBlank
     private String title;
 
-    private long views;
+    private double rating;
 
     @JsonIgnore
     private int participantLimit;

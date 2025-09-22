@@ -1,5 +1,6 @@
 package ru.practictum.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -9,6 +10,8 @@ import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.DuplicateException;
 import ru.practicum.exception.NotFoundException;
+
+import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class RequestExceptionHandler {
@@ -35,5 +38,11 @@ public class RequestExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflict(final ConflictException e) {
         return e.getError();
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConstraintViolation(final ConstraintViolationException e) {
+        return new ApiError(e.getMessage(), e.getMessage(), HttpStatus.CONFLICT, LocalDateTime.now());
     }
 }
