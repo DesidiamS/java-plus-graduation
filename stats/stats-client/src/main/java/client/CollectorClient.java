@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.UserActionDto;
-import ru.practicum.grpc.stats.user.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.grpc.stats.user.UserActionControllerGrpc;
-import ru.practicum.grpc.stats.user.UserActionProto;
 
 @Service
 @Slf4j

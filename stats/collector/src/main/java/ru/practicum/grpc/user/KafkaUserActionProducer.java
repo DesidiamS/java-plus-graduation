@@ -9,7 +9,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.practicum.grpc.stats.user.UserActionProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.serializer.AvroSerializer;
 
 import java.util.Properties;

@@ -3,8 +3,8 @@ package ru.practicum.grpc.user;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
-import ru.practicum.grpc.stats.user.ActionTypeProto;
-import ru.practicum.grpc.stats.user.UserActionProto;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 
 import java.time.Instant;
 

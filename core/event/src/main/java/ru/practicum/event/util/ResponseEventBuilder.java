@@ -18,6 +18,7 @@ import ru.practicum.feign.UserFeign;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +48,10 @@ public class ResponseEventBuilder {
         }
 
         long eventId = event.getId();
-        //LocalDateTime created = event.getCreatedOn();
 
         dto.setConfirmedRequests(getOneEventConfirmedRequests(eventId));
 
-        double rating = analyzerClient.getInteractionsCount(event.getId())
+        double rating = analyzerClient.getInteractionsCount(Collections.singletonList(event.getId()))
                 .stream().map(RecommendationDto::getScore)
                 .reduce(0.0, Double::sum);
         dto.setRating(rating);

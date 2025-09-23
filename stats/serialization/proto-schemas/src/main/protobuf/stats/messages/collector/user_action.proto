@@ -1,8 +1,8 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "ru.practicum.grpc.stats.user";
-package stats.message.user;
+option java_package = "ru.practicum.ewm.stats.proto";
+package stats.message;
 
 import "google/protobuf/timestamp.proto";
 

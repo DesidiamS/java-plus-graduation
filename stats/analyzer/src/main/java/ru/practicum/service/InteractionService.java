@@ -27,12 +27,27 @@ public class InteractionService {
     @Transactional
     public void saveInteraction(UserActionAvro userActionAvro) {
         log.info("Saving interaction {}", userActionAvro);
-        Interaction interaction = Interaction.builder()
-                .eventId((long) userActionAvro.getEventId())
-                .userId((long) userActionAvro.getUserId())
-                .rating(ACTION_WEIGHTS.get(userActionAvro.getActionType()))
-                .ts(userActionAvro.getTimestamp())
-                .build();
-        interactionRepository.save(interaction);
+
+        Long eventId = (long) userActionAvro.getEventId();
+        Long userId = (long) userActionAvro.getUserId();
+        Double newRating = ACTION_WEIGHTS.get(userActionAvro.getActionType());
+
+        Interaction existing = interactionRepository.findByUserIdAndEventId(userId, eventId);
+
+        if (existing != null) {
+            if (existing.getRating() < newRating) {
+                existing.setRating(newRating);
+                existing.setTs(userActionAvro.getTimestamp());
+                interactionRepository.save(existing);
+            }
+        } else {
+            Interaction interaction = Interaction.builder()
+                    .eventId(eventId)
+                    .userId(userId)
+                    .rating(newRating)
+                    .ts(userActionAvro.getTimestamp())
+                    .build();
+            interactionRepository.save(interaction);
+        }
     }
 }

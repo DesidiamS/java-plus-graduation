@@ -1,13 +1,14 @@
 package client;
 
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.RecommendationDto;
-import ru.practicum.grpc.stats.analyzer.recommendations.RecommendationsControllerGrpc;
-import ru.practicum.grpc.stats.recommendations.InteractionsCountRequestProto;
-import ru.practicum.grpc.stats.recommendations.RecommendedEventProto;
-import ru.practicum.grpc.stats.recommendations.SimilarEventsRequestProto;
-import ru.practicum.grpc.stats.recommendations.UserPredictionsRequestProto;
+import ru.practicum.ewm.stats.proto.InteractionsCountRequestProto;
+import ru.practicum.ewm.stats.proto.RecommendationsControllerGrpc;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
+import ru.practicum.ewm.stats.proto.SimilarEventsRequestProto;
+import ru.practicum.ewm.stats.proto.UserPredictionsRequestProto;
 
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @Service
 public class AnalyzerClient {
 
@@ -34,7 +36,7 @@ public class AnalyzerClient {
         Iterator<RecommendedEventProto> iterator = client.getRecommendationsForUser(request);
 
         return asStream(iterator)
-                .map(rec -> new RecommendationDto((long) rec.getEventId(), rec.getScore()))
+                .map(rec -> new RecommendationDto(rec.getEventId(), rec.getScore()))
                 .toList();
     }
 
@@ -48,19 +50,19 @@ public class AnalyzerClient {
         Iterator<RecommendedEventProto> iterator = client.getSimilarEvents(request);
 
         return asStream(iterator)
-                .map(rec -> new RecommendationDto((long) rec.getEventId(), rec.getScore()))
+                .map(rec -> new RecommendationDto(rec.getEventId(), rec.getScore()))
                 .toList();
     }
 
-    public List<RecommendationDto> getInteractionsCount(Long eventId) {
+    public List<RecommendationDto> getInteractionsCount(List<Long> eventIds) {
         InteractionsCountRequestProto request = InteractionsCountRequestProto.newBuilder()
-                .setEventId(Math.toIntExact(eventId))
+                .addAllEventId(eventIds)
                 .build();
 
         Iterator<RecommendedEventProto> iterator = client.getInteractionsCount(request);
 
         return asStream(iterator)
-                .map(rec -> new RecommendationDto((long) rec.getEventId(), rec.getScore()))
+                .map(rec -> new RecommendationDto(rec.getEventId(), rec.getScore()))
                 .toList();
     }
 

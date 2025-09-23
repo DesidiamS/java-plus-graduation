@@ -1,9 +1,9 @@
 package ru.practicum.service;
 
-import ru.practicum.grpc.stats.recommendations.InteractionsCountRequestProto;
-import ru.practicum.grpc.stats.recommendations.RecommendedEventProto;
-import ru.practicum.grpc.stats.recommendations.SimilarEventsRequestProto;
-import ru.practicum.grpc.stats.recommendations.UserPredictionsRequestProto;
+import ru.practicum.ewm.stats.proto.InteractionsCountRequestProto;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
+import ru.practicum.ewm.stats.proto.SimilarEventsRequestProto;
+import ru.practicum.ewm.stats.proto.UserPredictionsRequestProto;
 
 import java.util.Iterator;
 

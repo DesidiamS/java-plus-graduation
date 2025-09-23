@@ -6,7 +6,7 @@ option java_package = "ru.practicum.grpc.stats.user";
 package stats.service.collector;
 
 service UserActionController {
-  rpc CollectUserAction (stats.message.user.UserActionProto)
+  rpc CollectUserAction (stats.message.UserActionProto)
       returns (google.protobuf.Empty);
 }
 

@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.domain.Interaction;
 import ru.practicum.domain.Similarity;
-import ru.practicum.grpc.stats.recommendations.InteractionsCountRequestProto;
-import ru.practicum.grpc.stats.recommendations.RecommendedEventProto;
-import ru.practicum.grpc.stats.recommendations.SimilarEventsRequestProto;
-import ru.practicum.grpc.stats.recommendations.UserPredictionsRequestProto;
+import ru.practicum.ewm.stats.proto.InteractionsCountRequestProto;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
+import ru.practicum.ewm.stats.proto.SimilarEventsRequestProto;
+import ru.practicum.ewm.stats.proto.UserPredictionsRequestProto;
 import ru.practicum.repository.InteractionRepository;
 import ru.practicum.repository.SimilarityRepository;
 
@@ -36,7 +36,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         log.info("Getting recommendation events for user {}", request.getUserId());
         log.info("getRecommendedEvents request: {}", request);
         List<Similarity> similarities = similarityRepository.getRecommendations(
-                (long) request.getUserId(), (long) request.getEventId(), request.getMaxResults());
+                request.getUserId(), request.getEventId(), request.getMaxResults());
 
         Iterator<RecommendedEventProto> recommendations = similarities.stream()
                 .map(similarity -> RecommendedEventProto.newBuilder()
@@ -54,7 +54,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     public Iterator<RecommendedEventProto> getRecommendationsForUser(UserPredictionsRequestProto request) {
         log.info("Getting recommendation for user {}", request.getUserId());
         List<Interaction> recentInteractions = interactionRepository
-                .findTopNByUserIdOrderByTsDesc((long) request.getUserId());
+                .findTopNByUserIdOrderByTsDesc(request.getUserId());
 
         if (recentInteractions.isEmpty()) {
             return Collections.emptyIterator();
@@ -82,7 +82,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         return candidateEvents.stream()
                 .map(eventId -> RecommendedEventProto.newBuilder()
                         .setEventId(Math.toIntExact(eventId))
-                        .setScore(predictRating((long) request.getUserId(), eventId, request.getMaxResults()))
+                        .setScore(predictRating(request.getUserId(), eventId, request.getMaxResults()))
                         .build())
                 .sorted(Comparator.comparingDouble(RecommendedEventProto::getScore).reversed())
                 .limit(request.getMaxResults())
@@ -130,12 +130,24 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public Iterator<RecommendedEventProto> getInteractionsCount(InteractionsCountRequestProto request) {
-        log.info("Getting interactions count {}", request.getEventId());
-        Map<Long, Integer> maxWeights = interactionRepository.findMaxWeightsByEventId((long) request.getEventId());
+        log.info("Getting interactions count request: {}", request);
+        log.info("Received proto class: {}", request.getClass());
+        List<Long> eventId = request.getEventIdList();
+        log.info("Event Id: {}", eventId);
 
-        List<RecommendedEventProto> recommendedList = maxWeights.entrySet().stream()
+        List<Object[]> raw = interactionRepository.findMaxWeightsByEventId(eventId);
+
+        List<RecommendedEventProto> recommendedList;
+
+        Map<Long, Double> result = raw.stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> ((Number) row[1]).doubleValue()
+                ));
+
+        recommendedList = result.entrySet().stream()
                 .map(entry -> RecommendedEventProto.newBuilder()
-                        .setEventId(Math.toIntExact(entry.getKey()))
+                        .setEventId(entry.getKey())
                         .setScore(entry.getValue())
                         .build())
                 .toList();

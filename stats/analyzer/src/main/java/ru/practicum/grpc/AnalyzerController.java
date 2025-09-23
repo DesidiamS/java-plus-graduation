@@ -2,16 +2,18 @@ package ru.practicum.grpc;
 
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
-import ru.practicum.grpc.stats.analyzer.recommendations.RecommendationsControllerGrpc;
-import ru.practicum.grpc.stats.recommendations.InteractionsCountRequestProto;
-import ru.practicum.grpc.stats.recommendations.RecommendedEventProto;
-import ru.practicum.grpc.stats.recommendations.SimilarEventsRequestProto;
-import ru.practicum.grpc.stats.recommendations.UserPredictionsRequestProto;
+import ru.practicum.ewm.stats.proto.InteractionsCountRequestProto;
+import ru.practicum.ewm.stats.proto.RecommendationsControllerGrpc;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
+import ru.practicum.ewm.stats.proto.SimilarEventsRequestProto;
+import ru.practicum.ewm.stats.proto.UserPredictionsRequestProto;
 import ru.practicum.service.RecommendationService;
 
 import java.util.Iterator;
 
+@Slf4j
 @GrpcService
 @RequiredArgsConstructor
 public class AnalyzerController extends RecommendationsControllerGrpc.RecommendationsControllerImplBase {
@@ -47,6 +49,7 @@ public class AnalyzerController extends RecommendationsControllerGrpc.Recommenda
             iterator.forEachRemaining(responseObserver::onNext);
             responseObserver.onCompleted();
         } catch (Exception e) {
+            log.info(e.getMessage());
             responseObserver.onError(e);
         }
     }

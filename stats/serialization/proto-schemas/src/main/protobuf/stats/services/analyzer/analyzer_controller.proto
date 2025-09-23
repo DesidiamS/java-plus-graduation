@@ -1,6 +1,6 @@
 import "stats/messages/analyzer/analyzer_messages.proto";
 
-option java_package = "ru.practicum.grpc.stats.analyzer.recommendations";
+option java_package = "ru.practicum.ewm.stats.proto";
 
 package stats.service.dashboard;
 
