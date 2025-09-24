@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import ru.practicum.feign.EventFeign;
 import ru.practicum.feign.UserFeign;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"ru.practictum", "client"})
 @EnableDiscoveryClient
 @EnableFeignClients(clients = {EventFeign.class, UserFeign.class})
 public class RequestApplication {

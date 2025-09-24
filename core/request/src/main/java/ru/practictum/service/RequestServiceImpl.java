@@ -1,5 +1,6 @@
 package ru.practictum.service;
 
+import client.CollectorClient;
 import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,15 +11,18 @@ import ru.practictum.model.Request;
 import ru.practicum.dto.ConfirmedRequests;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.ParticipationRequestDto;
+import ru.practicum.dto.UserActionDto;
 import ru.practicum.dto.UserShortDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.RequestStatus;
+import ru.practicum.enums.UserActionType;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.DuplicateException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.feign.EventFeign;
 import ru.practicum.feign.UserFeign;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,7 @@ public class RequestServiceImpl implements RequestService {
     private final MapperRequest mapperRequest;
     private final EventFeign eventFeign;
     private final UserFeign userFeign;
+    private final CollectorClient collectorClient;
 
     @Override
     public List<ParticipationRequestDto> getParticipationRequests(Long userId) {
@@ -45,7 +50,7 @@ public class RequestServiceImpl implements RequestService {
 
         EventFullDto event;
         try {
-            event = eventFeign.getEventById(eventId).getBody();
+            event = eventFeign.getEventById(eventId, userId).getBody();
         } catch (FeignException.NotFound e) {
             throw new ConflictException(EVENT_NOT_FOUND);
         }
@@ -80,6 +85,14 @@ public class RequestServiceImpl implements RequestService {
         );
 
         request = requestRepository.save(request);
+
+        UserActionDto userAction = new UserActionDto(
+                userId,
+                eventId,
+                UserActionType.ACTION_REGISTER,
+                Instant.now());
+
+        collectorClient.createHit(userAction);
 
         return mapperRequest.toParticipationRequestDto(request);
     }

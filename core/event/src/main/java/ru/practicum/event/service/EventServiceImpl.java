@@ -1,5 +1,7 @@
 package ru.practicum.event.service;
 
+import client.AnalyzerClient;
+import client.CollectorClient;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +13,12 @@ import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.ParticipationRequestDto;
+import ru.practicum.dto.RecommendationDto;
+import ru.practicum.dto.UserActionDto;
 import ru.practicum.dto.UserShortDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.RequestStatus;
+import ru.practicum.enums.UserActionType;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
@@ -35,6 +40,7 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.feign.RequestFeign;
 import ru.practicum.feign.UserFeign;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +72,8 @@ public class EventServiceImpl implements EventService {
     private final MapperCategory mapperCategory;
     private final RequestFeign requestFeign;
     private final UserFeign userFeign;
+    private final CollectorClient collectorClient;
+    private final AnalyzerClient analyzerClient;
 
     @Override
     public List<EventFullDto> getEventsByAdmin(GetEventAdminParam param) {
@@ -279,9 +287,17 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getEventById(Long eventId) {
+    public EventFullDto getEventById(Long eventId, Long userId) {
         Event eventDomain = eventRepository.findByIdAndState(eventId, PUBLISHED)
                 .orElseThrow(() -> new NotFoundException(EVENT_NOT_FOUND));
+
+        UserActionDto userAction = new UserActionDto(
+                userId,
+                eventId,
+                UserActionType.ACTION_VIEW,
+                Instant.now());
+
+        collectorClient.createHit(userAction);
         return responseEventBuilder.buildOneEventResponseDto(eventDomain, EventFullDto.class);
     }
 
@@ -341,6 +357,29 @@ public class EventServiceImpl implements EventService {
                     return dto;
                 })
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void putLike(Long eventId, Long userId) {
+        UserActionDto userAction = new UserActionDto(
+                userId,
+                eventId,
+                UserActionType.ACTION_LIKE,
+                Instant.now());
+
+        List<ParticipationRequestDto> userRequests = requestFeign.getRequestsByEventId(eventId);
+
+        if (userRequests.stream()
+                .noneMatch(request -> request.getRequester().equals(userId))) {
+            throw new BadRequestException("Пользователь не посещал данное мероприятие");
+        }
+
+        collectorClient.createHit(userAction);
+    }
+
+    @Override
+    public List<RecommendationDto> getRecommendations(Long userId, Integer limit) {
+        return analyzerClient.getRecommendations(userId, limit);
     }
 
     private void updateEvent(Event event, UpdateEventParam param) {

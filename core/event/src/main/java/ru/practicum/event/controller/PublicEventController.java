@@ -1,6 +1,5 @@
 package ru.practicum.event.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,16 +13,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
+import ru.practicum.dto.RecommendationDto;
 import ru.practicum.event.enums.EventSortType;
 import ru.practicum.event.service.EventService;
 import ru.practicum.event.service.param.GetEventUserParam;
 import ru.practicum.exception.BadRequestException;
-import ru.practicum.feign.StatsFeign;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,7 +39,7 @@ import static ru.practicum.Constants.DATE_PATTERN;
 public class PublicEventController {
 
     private final EventService eventService;
-    private final StatsFeign statsFeign;
+    private static final String USER_HEADER = "X-EWM-USER-ID";
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getEventsByFilters(@RequestParam(name = "text", required = false) String text,
@@ -50,13 +50,11 @@ public class PublicEventController {
                                                                   @RequestParam(name = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,
                                                                   @RequestParam(name = "sort", required = false) EventSortType sort,
                                                                   @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
-                                                                  @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size,
-                                                                  HttpServletRequest request) {
+                                                                  @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size) {
         if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
             throw new BadRequestException("rangeStart > rangeEnd");
         }
         log.info("Пришел GET запрос /events на Public Event Controller");
-        doHit(request);
 
         Pageable page;
         if (sort != null) {
@@ -85,25 +83,28 @@ public class PublicEventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getEventById(@PathVariable Long eventId, HttpServletRequest request) {
+    public ResponseEntity<EventFullDto> getEventById(@PathVariable Long eventId,
+                                                     @RequestHeader(USER_HEADER) long userId) {
         log.info("Пришел GET запрос на /events/{} Public Event Controller", eventId);
-        doHit(request);
-        EventFullDto event = eventService.getEventById(eventId);
+        EventFullDto event = eventService.getEventById(eventId, userId);
         log.info("Отправлен ответ на GET /events/{} c телом: {}", eventId, event);
         return ResponseEntity.ok(event);
+    }
+
+    @PutMapping("/{eventId}")
+    public void putLike(@PathVariable Long eventId,
+                        @RequestHeader(USER_HEADER) long userId) {
+        eventService.putLike(eventId, userId);
+    }
+
+    @GetMapping("/recommendations")
+    public List<RecommendationDto> getRecommendations(@RequestHeader(USER_HEADER) long userId,
+                                                      @RequestParam(defaultValue = "5") int limit) {
+        return eventService.getRecommendations(userId, limit);
     }
 
     @GetMapping("/find")
     public ResponseEntity<Set<EventShortDto>> getEventByIds(@RequestParam Set<Long> eventIds) {
         return new ResponseEntity<>(eventService.getEventsByIds(eventIds), HttpStatus.OK);
-    }
-
-    private void doHit(HttpServletRequest request) {
-        EndpointHitDto hitDto = new EndpointHitDto();
-        hitDto.setApp("ewm-main-service");
-        hitDto.setIp(request.getRemoteAddr());
-        hitDto.setUri(request.getRequestURI());
-        hitDto.setCreated(LocalDateTime.now());
-        statsFeign.hitStat(hitDto);
     }
 }

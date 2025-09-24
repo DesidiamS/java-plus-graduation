@@ -5,6 +5,7 @@ import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.ParticipationRequestDto;
+import ru.practicum.dto.RecommendationDto;
 import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
@@ -35,7 +36,12 @@ public interface EventService {
 
     EventRequestStatusUpdateResult updateEventRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest updateRequest);
 
-    EventFullDto getEventById(Long eventId);
+    EventFullDto getEventById(Long eventId, Long userId);
 
     Set<EventShortDto> getEventsByIds(Set<Long> eventIds);
+
+    void putLike(Long eventId, Long userId);
+
+    List<RecommendationDto> getRecommendations(Long userId, Integer limit);
+
 }
