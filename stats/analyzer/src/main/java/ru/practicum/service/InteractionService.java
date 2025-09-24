@@ -14,6 +14,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class InteractionService {
 
     private static final Map<ActionTypeAvro, Double> ACTION_WEIGHTS = Map.of(

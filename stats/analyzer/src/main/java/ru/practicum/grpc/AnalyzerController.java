@@ -27,6 +27,7 @@ public class AnalyzerController extends RecommendationsControllerGrpc.Recommenda
             iterator.forEachRemaining(responseObserver::onNext);
             responseObserver.onCompleted();
         } catch (Exception e) {
+            log.info("Ошибка при получении рекомендаций для пользователя: {}", e.getMessage());
             responseObserver.onError(e);
         }
     }
@@ -38,6 +39,7 @@ public class AnalyzerController extends RecommendationsControllerGrpc.Recommenda
             iterator.forEachRemaining(responseObserver::onNext);
             responseObserver.onCompleted();
         } catch (Exception e) {
+            log.info("Ошибка при получении похожих мероприятий: {}", e.getMessage());
             responseObserver.onError(e);
         }
     }
@@ -49,7 +51,7 @@ public class AnalyzerController extends RecommendationsControllerGrpc.Recommenda
             iterator.forEachRemaining(responseObserver::onNext);
             responseObserver.onCompleted();
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.info("Ошибка при получении взаимодействий с мероприятиями: {}", e.getMessage());
             responseObserver.onError(e);
         }
     }

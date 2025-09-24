@@ -39,6 +39,7 @@ import static ru.practicum.Constants.DATE_PATTERN;
 public class PublicEventController {
 
     private final EventService eventService;
+    private static final String USER_HEADER = "X-EWM-USER-ID";
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getEventsByFilters(@RequestParam(name = "text", required = false) String text,
@@ -83,7 +84,7 @@ public class PublicEventController {
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventFullDto> getEventById(@PathVariable Long eventId,
-                                                     @RequestHeader("X-EWM-USER-ID") long userId) {
+                                                     @RequestHeader(USER_HEADER) long userId) {
         log.info("Пришел GET запрос на /events/{} Public Event Controller", eventId);
         EventFullDto event = eventService.getEventById(eventId, userId);
         log.info("Отправлен ответ на GET /events/{} c телом: {}", eventId, event);
@@ -92,12 +93,12 @@ public class PublicEventController {
 
     @PutMapping("/{eventId}")
     public void putLike(@PathVariable Long eventId,
-                        @RequestHeader("X-EWM-USER-ID") long userId) {
+                        @RequestHeader(USER_HEADER) long userId) {
         eventService.putLike(eventId, userId);
     }
 
     @GetMapping("/recommendations")
-    public List<RecommendationDto> getRecommendations(@RequestHeader("X-EWM-USER-ID") long userId,
+    public List<RecommendationDto> getRecommendations(@RequestHeader(USER_HEADER) long userId,
                                                       @RequestParam(defaultValue = "5") int limit) {
         return eventService.getRecommendations(userId, limit);
     }
